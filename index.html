@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highest Grossing Films</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1 class="title">Highest Grossing Films</h1>
+                    <p class="subtitle">Box office data from Wikipedia</p>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-films">0</span>
+                        <span class="stat-label">films</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-revenue">$0</span>
+                        <span class="stat-label">total revenue</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="top-film">-</span>
+                        <span class="stat-label">highest grossing</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-franchises">0</span>
+                        <span class="stat-label">franchises</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="chart-section">
+                <div class="chart-tabs">
+                    <button class="tab-btn active" data-chart="top10">Top 10</button>
+                    <button class="tab-btn" data-chart="timeline">Timeline</button>
+                    <button class="tab-btn" data-chart="franchises">Franchises</button>
+                    <button class="tab-btn" data-chart="franchise-comparison">Comparison</button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <input type="text" id="search-input" placeholder="Search title">
+                </div>
+                <div class="filter-group">
+                    <select id="franchise-filter">
+                        <option value="all">All films</option>
+                        <option value="no_franchise">Films without franchise</option>
+                    </select>
+                </div>
+                <div class="filter-group year-group">
+                    <input type="number" id="year-min" placeholder="Year from">
+                    <span>—</span>
+                    <input type="number" id="year-max" placeholder="Year to">
+                </div>
+                <button id="apply-year" class="apply-btn">Apply</button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2 class="section-title">Film list</h2>
+                    <div class="table-actions">
+                        <button id="export-csv" class="action-btn">Export CSV</button>
+                        <select id="sort-by" class="sort-select">
+                            <option value="title">Sort by title</option>
+                            <option value="year">Sort by year</option>
+                            <option value="box_office" selected>Sort by revenue</option>
+                        </select>
+                        <button id="sort-order" class="sort-order-btn">Descending</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="films-table">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>Director</th>
+                            <th>Revenue</th>
+                            <th>Country</th>
+                            <th>Franchise</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button id="prev-page" class="page-btn">Previous</button>
+                    <span id="page-info" class="page-info">Page 1</span>
+                    <button id="next-page" class="page-btn">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
