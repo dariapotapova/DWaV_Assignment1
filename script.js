@@ -135,14 +135,14 @@ function renderTable() {
     pageFilms.forEach(film => {
         const row = tbody.insertRow();
         const franchiseDisplay = film.franchise_name
-            ? `<span style="background: #f1f3f5; padding: 4px 12px; border-radius: 20px; font-size: 12px; color: #2c3e66;">${film.franchise_name}</span>`
-            : '<span style="color: #adb5bd;">—</span>';
+            ? `<span style="background: #e8f5e9; padding: 4px 12px; border-radius: 20px; font-size: 12px; color: #2d6a4f;">${film.franchise_name}</span>`
+            : '<span style="color: #b8cdc0;">—</span>';
 
         row.innerHTML = `
             <td><strong>${film.title || '—'}</strong>
             <td>${film.release_year || '—'}
             <td>${film.director || '—'}
-            <td style="color: #2c3e66; font-weight: 500;">${formatMoney(film.box_office_num)}</td>
+            <td style="color: #2d6a4f; font-weight: 600;">${formatMoney(film.box_office_num)}</td>
             <td>${film.country || '—'}
             <td>${franchiseDisplay}</td>
         `;
@@ -160,6 +160,9 @@ function renderChart(type) {
     }
 
     const ctx = document.getElementById('mainChart').getContext('2d');
+    const mintGreen = '#2d6a4f';
+    const mintLight = '#52b788';
+    const mintPale = 'rgba(45, 106, 79, 0.1)';
 
     if (type === 'top10') {
         const top10 = [...filteredFilms]
@@ -169,17 +172,32 @@ function renderChart(type) {
         currentChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: top10.map(f => f.title.length > 30 ? f.title.substring(0, 30) + '…' : f.title),
+                labels: top10.map(f => {
+                    // Перенос длинных названий на несколько строк
+                    const words = f.title.split(' ');
+                    if (words.length > 3) {
+                        const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+                        const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+                        return [line1, line2];
+                    }
+                    return f.title;
+                }),
                 datasets: [{
                     data: top10.map(f => f.box_office_num / 1e9),
-                    backgroundColor: '#2c3e66',
-                    borderRadius: 6,
-                    barPercentage: 0.65
+                    backgroundColor: mintGreen,
+                    borderRadius: 8,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.85
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        bottom: 20
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -195,12 +213,19 @@ function renderChart(type) {
                 },
                 scales: {
                     y: {
-                        title: { display: true, text: 'billion USD', color: '#6c757d', font: { size: 11 } },
-                        grid: { color: '#eef2f6' },
-                        ticks: { color: '#6c757d', callback: v => `$${v}B` }
+                        title: { display: true, text: 'billion USD', color: '#6c9e7a', font: { size: 11 } },
+                        grid: { color: '#e0e8e3' },
+                        ticks: { color: '#6c9e7a', callback: v => `$${v}B` }
                     },
                     x: {
-                        ticks: { color: '#6c757d', font: { size: 11 } },
+                        ticks: {
+                            color: '#6c9e7a',
+                            font: { size: 11, weight: 'normal' },
+                            maxRotation: 0,
+                            minRotation: 0,
+                            autoSkip: false,
+                            multiline: true
+                        },
                         grid: { display: false }
                     }
                 }
@@ -248,13 +273,13 @@ function renderChart(type) {
                 labels: sortedYears,
                 datasets: [{
                     data: sortedYears.map(y => yearData[y].total / 1e9),
-                    borderColor: '#2c3e66',
-                    backgroundColor: 'rgba(44, 62, 102, 0.05)',
+                    borderColor: mintGreen,
+                    backgroundColor: mintPale,
                     borderWidth: 2.5,
                     tension: 0.3,
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    pointBackgroundColor: '#2c3e66',
+                    pointBackgroundColor: mintLight,
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     fill: true
@@ -289,12 +314,17 @@ function renderChart(type) {
                 },
                 scales: {
                     y: {
-                        title: { display: true, text: 'billion USD', color: '#6c757d', font: { size: 11 } },
-                        grid: { color: '#eef2f6' },
-                        ticks: { color: '#6c757d', callback: v => `$${v}B` }
+                        title: { display: true, text: 'billion USD', color: '#6c9e7a', font: { size: 11 } },
+                        grid: { color: '#e0e8e3' },
+                        ticks: { color: '#6c9e7a', callback: v => `$${v}B` }
                     },
                     x: {
-                        ticks: { color: '#6c757d', font: { size: 11 } },
+                        ticks: {
+                            color: '#6c9e7a',
+                            font: { size: 11 },
+                            maxRotation: 0,
+                            minRotation: 0
+                        },
                         grid: { display: false }
                     }
                 }
@@ -335,7 +365,7 @@ function renderChart(type) {
                     maintainAspectRatio: false,
                     plugins: {
                         tooltip: { callbacks: { label: () => 'No franchise data' } },
-                        legend: { position: 'right', labels: { color: '#6c757d' } }
+                        legend: { position: 'right', labels: { color: '#6c9e7a' } }
                     }
                 }
             });
@@ -345,10 +375,21 @@ function renderChart(type) {
         currentChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: sortedFranchises.map(f => f[0].length > 25 ? f[0].substring(0, 25) + '…' : f[0]),
+                labels: sortedFranchises.map(f => {
+                    // Перенос длинных названий франшиз
+                    if (f[0].length > 20) {
+                        const words = f[0].split(' ');
+                        if (words.length > 2) {
+                            const mid = Math.ceil(words.length / 2);
+                            return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+                        }
+                        return [f[0].substring(0, 20), f[0].substring(20)];
+                    }
+                    return f[0];
+                }),
                 datasets: [{
                     data: sortedFranchises.map(f => f[1].total / 1e9),
-                    backgroundColor: ['#2c3e66', '#3a4a6e', '#485a7a', '#566a86', '#647a92', '#728a9e', '#809aaa', '#8eaab6'],
+                    backgroundColor: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc', '#e9f5e9'],
                     borderWidth: 0
                 }]
             },
@@ -381,7 +422,14 @@ function renderChart(type) {
                             }
                         }
                     },
-                    legend: { position: 'right', labels: { color: '#6c757d', font: { size: 11 } } }
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#6c9e7a',
+                            font: { size: 11 },
+                            padding: 12
+                        }
+                    }
                 }
             }
         });
@@ -439,17 +487,32 @@ function renderChart(type) {
         currentChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: topAvg.map(f => f.name.length > 25 ? f.name.substring(0, 25) + '…' : f.name),
+                labels: topAvg.map(f => {
+                    // Перенос длинных названий франшиз
+                    const words = f.name.split(' ');
+                    if (words.length > 3) {
+                        const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+                        const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+                        return [line1, line2];
+                    }
+                    return f.name;
+                }),
                 datasets: [{
                     data: topAvg.map(f => f.avg),
-                    backgroundColor: '#2c3e66',
-                    borderRadius: 6,
-                    barPercentage: 0.7
+                    backgroundColor: mintLight,
+                    borderRadius: 8,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.85
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        bottom: 20
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -481,12 +544,19 @@ function renderChart(type) {
                 },
                 scales: {
                     y: {
-                        title: { display: true, text: 'average per film (billion USD)', color: '#6c757d', font: { size: 11 } },
-                        grid: { color: '#eef2f6' },
-                        ticks: { color: '#6c757d', callback: v => `$${v}B` }
+                        title: { display: true, text: 'average per film (billion USD)', color: '#6c9e7a', font: { size: 11 } },
+                        grid: { color: '#e0e8e3' },
+                        ticks: { color: '#6c9e7a', callback: v => `$${v}B` }
                     },
                     x: {
-                        ticks: { color: '#6c757d', font: { size: 11 } },
+                        ticks: {
+                            color: '#6c9e7a',
+                            font: { size: 10, weight: 'normal' },
+                            maxRotation: 0,
+                            minRotation: 0,
+                            autoSkip: false,
+                            multiline: true
+                        },
                         grid: { display: false }
                     }
                 }
